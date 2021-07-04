@@ -1,0 +1,64 @@
+   <launch>
+
+    <node name="controller" pkg="pid" type="controller" ns="front_left_wheel" output="screen" >
+      <param name="node_name" value="front_left_wheel_pid" />
+      <param name="Kp" value="10" />
+      <param name="Ki" value="20" />
+      <param name="Kd" value="10" />
+      <param name="upper_limit" value="255" />
+      <param name="lower_limit" value="0" />
+      <param name="windup_limit" value="10" />
+      <param name="max_loop_frequency" value="100.0" />
+      <param name="min_loop_frequency" value="100.0" />
+      <remap from="setpoint" to="/setpoint_front_left_wheel" />
+    </node>
+
+    <node name="controller" pkg="pid" type="controller" ns="front_right_wheel" output="screen" >
+      <param name="node_name" value="front_right_wheel_pid" />
+      <param name="Kp" value="5" />
+      <param name="Ki" value="10" />
+      <param name="Kd" value="10" />
+      <param name="upper_limit" value="255" />
+      <param name="lower_limit" value="10" />
+      <param name="windup_limit" value="10" />
+      <param name="max_loop_frequency" value="100.0" />
+      <param name="min_loop_frequency" value="100.0" />
+      <remap from="setpoint" to="/setpoint_front_right_wheel" />
+    </node>
+
+    <node name="controller" pkg="pid" type="controller" ns="back_left_wheel" output="screen" >
+      <param name="node_name" value="back_left_wheel_pid" />
+      <param name="Kp" value="5" />
+      <param name="Ki" value="10" />
+      <param name="Kd" value="10" />
+      <param name="upper_limit" value="255" />
+      <param name="lower_limit" value="0" />
+      <param name="windup_limit" value="10" />
+      <param name="max_loop_frequency" value="100.0" />
+      <param name="min_loop_frequency" value="100.0" />
+      <remap from="setpoint" to="/setpoint_back_left_wheel" />
+    </node>
+
+    <node name="controller" pkg="pid" type="controller" ns="back_right_wheel" output="screen" >
+      <param name="node_name" value="back_right_wheel_pid" />
+      <param name="Kp" value="5" />
+      <param name="Ki" value="10" />
+      <param name="Kd" value="10" />
+      <param name="upper_limit" value="255" />
+      <param name="lower_limit" value="0" />
+      <param name="windup_limit" value="10" />
+      <param name="max_loop_frequency" value="100.0" />
+      <param name="min_loop_frequency" value="100.0" />
+      <remap from="setpoint" to="/setpoint_back_right_wheel" />
+    </node>
+
+    <node pkg="haruto_controller" name="converter" type="converter.py" output="screen">
+    </node>
+
+    <node pkg="haruto_controller" name="command" type="command.py" output="screen">
+    </node>
+
+    <node pkg="haruto_controller" name="feedback" type="feedback.py" output="screen">
+    </node>
+
+</launch>
