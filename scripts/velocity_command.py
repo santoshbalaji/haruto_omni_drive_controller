@@ -28,19 +28,14 @@ class HarutoCommand(object):
 
     def __init__(self):
         self.speed = dict()
-        self.velocity_publisher = rospy.Publisher(
-            'diff_velocity', Velocity, queue_size=10)
-        self.pid_publisher_front_left = rospy.Publisher(
-            '/setpoint_front_left_wheel', Float64, queue_size=10)
-        self.pid_publisher_front_right = rospy.Publisher(
-            '/setpoint_front_right_wheel', Float64, queue_size=10)
-        self.pid_publisher_back_left = rospy.Publisher(
-            '/setpoint_back_left_wheel', Float64, queue_size=10)
-        self.pid_publisher_back_right = rospy.Publisher(
-            '/setpoint_back_right_wheel', Float64, queue_size=10)
+        self.velocity_publisher = rospy.Publisher('/diff_velocity', Velocity, queue_size=10)
+        self.pid_publisher_front_left = rospy.Publisher('/setpoint_front_left_wheel', Float64, queue_size=10)
+        self.pid_publisher_front_right = rospy.Publisher('/setpoint_front_right_wheel', Float64, queue_size=10)
+        self.pid_publisher_back_left = rospy.Publisher('/setpoint_back_left_wheel', Float64, queue_size=10)
+        self.pid_publisher_back_right = rospy.Publisher('/setpoint_back_right_wheel', Float64, queue_size=10)
 
         rospy.init_node('command', anonymous=True)
-        rospy.loginfo('---------- Intialising haruto command node -----------')
+        rospy.loginfo('---------- Intialising haruto command node -----------') 
 
     def process_velocity(self, data: Twist):
         """
@@ -60,6 +55,16 @@ class HarutoCommand(object):
         self.speed['front_right_expected_speed'] = temp / 1000
         self.speed['back_right_expected_speed'] = self.speed['front_right_expected_speed']
 
+        setpoint = Float64()
+        setpoint = abs(self.speed['front_left_expected_speed'])
+        self.pid_publisher_front_left.publish(setpoint)
+        setpoint = abs(self.speed['front_right_expected_speed'])
+        self.pid_publisher_front_right.publish(setpoint)
+        setpoint = abs(self.speed['back_left_expected_speed'])
+        self.pid_publisher_back_left.publish(setpoint)
+        setpoint = abs(self.speed['back_right_expected_speed'])
+        self.pid_publisher_back_right.publish(setpoint)
+
         velocity = Velocity()
         velocity.front_left_expected_speed = self.speed['front_left_expected_speed']
         velocity.front_right_expected_speed = self.speed['front_right_expected_speed']
@@ -67,19 +72,9 @@ class HarutoCommand(object):
         velocity.back_right_expected_speed = self.speed['back_right_expected_speed']
         self.velocity_publisher.publish(velocity)
 
-        setpoint = Float64()
-        setpoint = self.speed['front_left_expected_speed']
-        self.pid_publisher_front_left.publish(setpoint)
-        setpoint = self.speed['front_right_expected_speed']
-        self.pid_publisher_front_right.publish(setpoint)
-        setpoint = self.speed['back_left_expected_speed']
-        self.pid_publisher_back_left.publish(setpoint)
-        setpoint = self.speed['back_right_expected_speed']
-        self.pid_publisher_back_right.publish(setpoint)
-
     def start_listening(self):
         """
-            Method to start listening for subscribers 
+            Method to start listening (node startup) 
         """
         rospy.Subscriber('cmd_vel', Twist, self.process_velocity)
         rospy.spin()

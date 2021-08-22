@@ -1,0 +1,3 @@
+<launch>
+    <node pkg="haruto_controller" name="encoder_tuner" type="encoder_tuner.py" output="screen"></node>
+</launch>
