@@ -45,15 +45,29 @@ class HarutoCommand(object):
             :param data: Twist
         """
         rospy.loginfo('----------- Linear Velocity: {0}, Angular Velocity: {1}'.format(data.linear.x, data.angular.z))
-        temp = (data.linear.x - ((data.angular.z * WHEEL_GAP) / 2)) / WHEEL_RADIUS
-        temp = map((temp * 100), -3650, 3650, -800, 800)
-        self.speed['front_left_expected_speed'] = temp / 1000
-        self.speed['back_left_expected_speed'] = self.speed['front_left_expected_speed']
+        left_temp = ((2 * data.linear.x) - (data.angular.z * WHEEL_GAP)) / (2 * WHEEL_RADIUS)
+        right_temp = ((2 * data.linear.x) + (data.angular.z * WHEEL_GAP)) / (2 * WHEEL_RADIUS)
+        if data.linear.x != 0:
+            left_temp = map((left_temp * 100), -3000, 3000, -1000, 1000)
+            self.speed['front_left_expected_speed'] = left_temp / 1000
+            self.speed['back_left_expected_speed'] = self.speed['front_left_expected_speed']
 
-        temp = (data.linear.x + ((data.angular.z * WHEEL_GAP) / 2)) / WHEEL_RADIUS
-        temp = map((temp * 100), -3650, 3650, -800, 800)
-        self.speed['front_right_expected_speed'] = temp / 1000
-        self.speed['back_right_expected_speed'] = self.speed['front_right_expected_speed']
+            right_temp = map((right_temp * 100), -3000, 3000, -1000, 1000)
+            self.speed['front_right_expected_speed'] = right_temp / 1000
+            self.speed['back_right_expected_speed'] = self.speed['front_right_expected_speed']
+        elif data.angular.z != 0:
+            left_temp = map((left_temp * 100), -400, 400, -1000, 1000)
+            self.speed['front_left_expected_speed'] = left_temp / 1000
+            self.speed['back_left_expected_speed'] = self.speed['front_left_expected_speed']
+
+            right_temp = map((right_temp * 100), -400, 400, -1000, 1000)
+            self.speed['front_right_expected_speed'] = right_temp / 1000
+            self.speed['back_right_expected_speed'] = self.speed['front_right_expected_speed']
+        else:
+            self.speed['front_left_expected_speed'] = 0
+            self.speed['front_right_expected_speed'] = 0
+            self.speed['back_left_expected_speed'] = 0
+            self.speed['back_right_expected_speed'] = 0
 
         setpoint = Float64()
         setpoint = abs(self.speed['front_left_expected_speed'])
