@@ -1,70 +1,16 @@
 <launch>
 
-  <node name="controller" pkg="pid" type="controller" ns="front_left_wheel" output="screen">
-    <param name="node_name" value="front_left_wheel_pid" />
-    <param name="Kp" value="5" />
-    <param name="Ki" value="10" />
-    <param name="Kd" value="10" />
-    <param name="upper_limit" value="255" />
-    <param name="lower_limit" value="0" />
-    <param name="windup_limit" value="10" />
-    <param name="max_loop_frequency" value="100.0" />
-    <param name="min_loop_frequency" value="100.0" />
-    <remap from="setpoint" to="/setpoint_front_left_wheel" />
-  </node>
-
-  <node name="controller" pkg="pid" type="controller" ns="front_right_wheel" output="screen">
-    <param name="node_name" value="front_right_wheel_pid" />
-    <param name="Kp" value="5" />
-    <param name="Ki" value="10" />
-    <param name="Kd" value="10" />
-    <param name="upper_limit" value="255" />
-    <param name="lower_limit" value="0" />
-    <param name="windup_limit" value="10" />
-    <param name="max_loop_frequency" value="100.0" />
-    <param name="min_loop_frequency" value="100.0" />
-    <remap from="setpoint" to="/setpoint_front_right_wheel" />
-  </node>
-
-  <node name="controller" pkg="pid" type="controller" ns="back_left_wheel" output="screen">
-    <param name="node_name" value="back_left_wheel_pid" />
-    <param name="Kp" value="5" />
-    <param name="Ki" value="10" />
-    <param name="Kd" value="10" />
-    <param name="upper_limit" value="255" />
-    <param name="lower_limit" value="0" />
-    <param name="windup_limit" value="10" />
-    <param name="max_loop_frequency" value="100.0" />
-    <param name="min_loop_frequency" value="100.0" />
-    <remap from="setpoint" to="/setpoint_back_left_wheel" />
-  </node>
-
-  <node name="controller" pkg="pid" type="controller" ns="back_right_wheel" output="screen">
-    <param name="node_name" value="back_right_wheel_pid" />
-    <param name="Kp" value="5" />
-    <param name="Ki" value="10" />
-    <param name="Kd" value="10" />
-    <param name="upper_limit" value="255" />
-    <param name="lower_limit" value="0" />
-    <param name="windup_limit" value="10" />
-    <param name="max_loop_frequency" value="100.0" />
-    <param name="min_loop_frequency" value="100.0" />
-    <remap from="setpoint" to="/setpoint_back_right_wheel" />
-  </node>
-
-  <node pkg="haruto_controller" name="velocity_converter" type="velocity_converter.py" output="screen"></node>
-
   <node pkg="haruto_controller" name="velocity_command" type="velocity_command.py" output="screen"></node>
 
   <node pkg="haruto_controller" name="sensor_feedback" type="sensor_feedback.py" output="screen"></node>
 
-  <!-- <node name="rplidarNode" pkg="rplidar_ros" type="rplidarNode" output="screen">
+  <node name="rplidarNode" pkg="rplidar_ros" type="rplidarNode" output="screen">
     <param name="serial_port" type="string" value="/dev/ttyUSB0" />
     <param name="serial_baudrate" type="int" value="115200" />
     <param name="frame_id" type="string" value="laser" />
     <param name="inverted" type="bool" value="false" />
     <param name="angle_compensate" type="bool" value="true" />
-  </node> -->
+  </node>
 
   <node pkg="tf" type="static_transform_publisher" name="laser_broadcaster" args="0 0.04 0.14 0 0 0 1 /base_link /laser 100" />
 
