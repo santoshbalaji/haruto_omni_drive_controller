@@ -119,7 +119,7 @@ class HarutoCommand(object):
             self.speed['front_left_expected_speed'] = round((left_temp / 1000), 2)
             self.speed['back_left_expected_speed'] = self.speed['front_left_expected_speed']
 
-            right_temp = round(map((right_temp * 100), -3000, 3000, -1000, 1000), 2)
+            right_temp = map((right_temp * 100), -3000, 3000, -1000, 1000)
             self.speed['front_right_expected_speed'] = round((right_temp / 1000), 2)
             self.speed['back_right_expected_speed'] = self.speed['front_right_expected_speed']
         elif data.angular.z != 0:
@@ -127,7 +127,7 @@ class HarutoCommand(object):
             self.speed['front_left_expected_speed'] = round((left_temp / 1000), 2)
             self.speed['back_left_expected_speed'] = self.speed['front_left_expected_speed']
 
-            right_temp = round(map((right_temp * 100), -400, 400, -1000, 1000), 2)
+            right_temp = map((right_temp * 100), -400, 400, -1000, 1000)
             self.speed['front_right_expected_speed'] = round((right_temp / 1000), 2)
             self.speed['back_right_expected_speed'] = self.speed['front_right_expected_speed']
         else:
@@ -155,8 +155,6 @@ class HarutoCommand(object):
         self.speed['front_right_actual_speed'] = data.front_right_actual_speed
         self.speed['back_left_actual_speed'] = data.back_left_actual_speed
         self.speed['back_right_actual_speed'] = data.back_right_actual_speed
-
-        rospy.loginfo('FLA: {0}, FRA: {1}, BLA: {2}, BRA:{3}'.format(self.speed['front_left_actual_speed'], self.speed['front_right_actual_speed'], self.speed['back_left_actual_speed'], self.speed['back_right_actual_speed']))
 
     def calculate_pid(self):
         """

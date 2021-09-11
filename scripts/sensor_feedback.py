@@ -10,7 +10,7 @@ from std_msgs.msg import Float64
 from haruto_msgs.msg import Velocity
 from haruto_msgs.msg import Tick
 from haruto_msgs.msg import Reply
-from constants import WHEEL_GAP, WHEEL_RADIUS
+from constants import WHEEL_GAP, WHEEL_RADIUS, ENCODER_FULL_CYCLE
 
 
 class HarutoFeedback(object):
@@ -24,20 +24,23 @@ class HarutoFeedback(object):
         }
         
         self.speed = {
-            'front_left_actual_speed': 0, 'front_right_actual_speed': 0, 'back_left_actual_speed': 0, 'back_right_actual_speed': 0,
-            'front_left_expected_speed': 0, 'front_right_expected_speed': 0, 'back_left_expected_speed': 0, 'back_right_expected_speed': 0
+            'front_left_actual_speed': 0, 'front_right_actual_speed': 0, 'back_left_actual_speed': 0, 'back_right_actual_speed': 0
+        }
+
+        self.odom_tick = {
+            'front_left_tick': 0, 'front_right_tick': 0, 'back_left_tick': 0, 'back_right_tick': 0
+        }
+        
+        self.odom_speed = {
+            'front_left_actual_speed': 0, 'front_right_actual_speed': 0, 'back_left_actual_speed': 0, 'back_right_actual_speed': 0
         }
 
         self.position = {
             'x': 0, 'y': 0, 'th': 0
         }
 
-        self.encoder = {
-            'forward_front_right': 0, 'forward_front_left': 0, 'forward_back_left': 0, 'forward_back_right': 0,
-            'reverse_front_right': 0, 'reverse_front_left': 0, 'reverse_back_left': 0, 'reverse_back_right': 0
-        }
-
         self.time = round(time.time() * 1000)
+        self.odom_time = round(time.time() * 1000)
 
         self.actual_velocity_publisher = rospy.Publisher('/diff_actual_velocity', Velocity, queue_size=10)
         self.odom_pub = rospy.Publisher("odom", Odometry, queue_size=50)
@@ -56,54 +59,51 @@ class HarutoFeedback(object):
             :params data: Reply
         """
         data = data.tick
-        if round(time.time() * 1000) - self.time >= 100:
-            if self.speed['front_left_expected_speed'] > 0:
-                self.speed['front_left_actual_speed'] = abs((data.front_left_tick - self.tick['front_left_tick']) / self.encoder['forward_front_left']) * 10
-                self.speed['back_left_actual_speed'] = abs((data.back_left_tick - self.tick['back_left_tick']) / self.encoder['forward_back_left']) * 10
-            elif self.speed['front_left_expected_speed'] < 0:
-                self.speed['front_left_actual_speed'] = abs((data.front_left_tick - self.tick['front_left_tick']) / self.encoder['reverse_front_left']) * 10
-                self.speed['back_left_actual_speed'] = abs((data.back_left_tick - self.tick['back_left_tick']) / self.encoder['reverse_back_left']) * 10
-            else:
-                self.speed['front_left_actual_speed'] = 0
-                self.speed['back_left_actual_speed'] = 0
+        if round(time.time() * 1000) - self.time >= 1000:
+            front_left_tick = - data.front_left_tick
+            front_right_tick = data.front_right_tick
+            back_left_tick = - data.back_left_tick
+            back_right_tick = data.back_right_tick
 
-            if self.speed['front_right_expected_speed'] > 0:
-                self.speed['front_right_actual_speed'] = abs((data.front_right_tick - self.tick['front_right_tick']) / self.encoder['forward_front_right']) * 10
-                self.speed['back_right_actual_speed'] = abs((data.back_right_tick - self.tick['back_right_tick']) / self.encoder['forward_back_right']) * 10
-            elif self.speed['front_right_expected_speed'] < 0:
-                self.speed['front_right_actual_speed'] = abs((data.front_right_tick - self.tick['front_right_tick']) / self.encoder['reverse_front_right']) * 10
-                self.speed['back_right_actual_speed'] = abs((data.back_right_tick - self.tick['back_right_tick']) / self.encoder['reverse_back_right']) * 10
-            else:
-                self.speed['front_right_actual_speed'] = 0
-                self.speed['back_right_actual_speed'] = 0
+            self.speed['front_left_actual_speed'] = round(((front_left_tick - self.tick['front_left_tick']) * 2 * 3.14 * WHEEL_RADIUS) / ENCODER_FULL_CYCLE, 3)
+            self.speed['front_right_actual_speed'] = round(((front_right_tick - self.tick['front_right_tick']) * 2 * 3.14 * WHEEL_RADIUS) / ENCODER_FULL_CYCLE, 3)
+            self.speed['back_left_actual_speed'] = round(((back_left_tick - self.tick['back_left_tick']) * 2 * 3.14 * WHEEL_RADIUS) / ENCODER_FULL_CYCLE, 3)
+            self.speed['back_right_actual_speed'] = round(((back_right_tick - self.tick['back_right_tick']) * 2 * 3.14 * WHEEL_RADIUS) / ENCODER_FULL_CYCLE, 3)
 
-            self.tick['front_left_tick'] = data.front_left_tick
-            self.tick['front_right_tick'] = data.front_right_tick
-            self.tick['back_left_tick'] = data.back_left_tick
-            self.tick['back_right_tick'] = data.back_right_tick
+            self.tick['front_left_tick'] = front_left_tick
+            self.tick['front_right_tick'] = front_right_tick
+            self.tick['back_left_tick'] = back_left_tick
+            self.tick['back_right_tick'] = back_right_tick
             self.time = round(time.time() * 1000)
 
             velocity = Velocity()
-            velocity.front_left_actual_speed = self.speed['front_left_actual_speed']
-            velocity.front_right_actual_speed = self.speed['front_right_actual_speed']
-            velocity.back_left_actual_speed = self.speed['back_left_actual_speed']
-            velocity.back_right_actual_speed = self.speed['back_right_actual_speed']
+            velocity.front_left_actual_speed = self.speed['front_left_actual_speed'] * 1
+            velocity.front_right_actual_speed = self.speed['front_right_actual_speed'] * 1
+            velocity.back_left_actual_speed = self.speed['back_left_actual_speed'] * 1
+            velocity.back_right_actual_speed = self.speed['back_right_actual_speed'] * 1
 
-            self.compute_odom()
+            self.actual_velocity_publisher.publish(velocity)
 
             rospy.loginfo('FLA: {0}, FRA: {1}, BLA: {2}, BRA: {3}'.format(self.speed['front_left_actual_speed'], self.speed['front_right_actual_speed'], self.speed['back_left_actual_speed'], self.speed['back_right_actual_speed']))
+        
+        if round(time.time() * 1000) - self.odom_time >= 100:
+            front_left_tick = - data.front_left_tick
+            front_right_tick = data.front_right_tick
+            back_left_tick = - data.back_left_tick
+            back_right_tick = data.back_right_tick
 
+            self.odom_speed['front_left_actual_speed'] = round(((front_left_tick - self.odom_tick['front_left_tick']) * 2 * 3.14 * WHEEL_RADIUS) / ENCODER_FULL_CYCLE, 3)
+            self.odom_speed['front_right_actual_speed'] = round(((front_right_tick - self.odom_tick['front_right_tick']) * 2 * 3.14 * WHEEL_RADIUS) / ENCODER_FULL_CYCLE, 3)
+            self.odom_speed['back_left_actual_speed'] = round(((back_left_tick - self.odom_tick['back_left_tick']) * 2 * 3.14 * WHEEL_RADIUS) / ENCODER_FULL_CYCLE, 3)
+            self.odom_speed['back_right_actual_speed'] = round(((back_right_tick - self.odom_tick['back_right_tick']) * 2 * 3.14 * WHEEL_RADIUS) / ENCODER_FULL_CYCLE, 3)
 
-    def process_expected_velocity(self, data: Velocity):
-        """
-            Method to get expected velocity computed from command controller
+            self.odom_tick['front_left_tick'] = front_left_tick
+            self.odom_tick['front_right_tick'] = front_right_tick
+            self.odom_tick['back_left_tick'] = back_left_tick
+            self.odom_tick['back_right_tick'] = back_right_tick
+            self.odom_time = round(time.time() * 1000)
 
-            :params data: Velocity
-        """
-        self.speed['front_left_expected_speed'] = data.front_left_expected_speed
-        self.speed['front_right_expected_speed'] = data.front_right_expected_speed
-        self.speed['back_left_expected_speed'] = data.back_left_expected_speed
-        self.speed['back_right_expected_speed'] = data.back_right_expected_speed
+            self.compute_odom()
 
     def compute_odom(self):
         """
@@ -113,8 +113,8 @@ class HarutoFeedback(object):
         """
         current_time = rospy.Time.now()
 
-        vl = (self.speed['front_left_actual_speed'] + self.speed['back_left_actual_speed']) / 2
-        vr = (self.speed['front_right_actual_speed'] + self.speed['back_right_actual_speed']) / 2
+        vl = (self.odom_speed['front_left_actual_speed'] + self.odom_speed['back_left_actual_speed']) / 2
+        vr = (self.odom_speed['front_right_actual_speed'] + self.odom_speed['back_right_actual_speed']) / 2
         vc = (WHEEL_RADIUS * (vl + vr)) / 2
         self.position['th'] = self.position['th'] + ((WHEEL_RADIUS * (vr - vl)) / WHEEL_GAP)
         self.position['x'] = self.position['x'] + (vc * math.cos(self.position['th']))
@@ -134,52 +134,14 @@ class HarutoFeedback(object):
 
         self.odom_pub.publish(odom)
 
-    def set_encoder_tunings(self):
-        """
-            Method to set encoder tunings values 
-        """
-        forward_file = open('/home/santosh/Projects/forward.txt', 'r')
-        reverse_file = open('/home/santosh/Projects/reverse.txt', 'r')
-        
-        forward_lines = forward_file.readlines()
-        reverse_lines = reverse_file.readlines()
-
-        forward_line = forward_lines[0] if len(forward_lines) > 0 else None
-        reverse_line = reverse_lines[0] if len(reverse_lines) > 0 else None
-        if forward_line:
-            values = forward_line.split(' ')
-            if(len(values) == 4):
-                self.encoder['forward_front_right'] = int(values[0])
-                self.encoder['forward_front_left'] = int(values[1])
-                self.encoder['forward_back_right'] = int(values[2])
-                self.encoder['forward_back_left'] = int(values[3])
-            else:
-                rospy.logwarn("Encode tuners for forward mode not set (value missing)")
-        else:
-            rospy.logwarn("Encode tuners for forward mode not set (file missing)")
-
-        if reverse_line:
-            values = reverse_line.split(' ')
-            if(len(values) == 4):
-                self.encoder['reverse_front_right'] = int(values[0])
-                self.encoder['reverse_front_left'] = int(values[1])
-                self.encoder['reverse_back_right'] = int(values[2])
-                self.encoder['reverse_back_left'] = int(values[3])
-            else:
-                rospy.logwarn("Encode tuners for reverse mode not set (value missing)")
-        else:
-            rospy.logwarn("Encode tuners for reverse mode not set (file missing)")
-
     def start_listening(self):
         """
             Method to start listening (node startup) 
         """
         rospy.Subscriber('/diff_feedback', Reply, self.process_encoder)
-        rospy.Subscriber('/diff_expected_velocity', Velocity, self.process_expected_velocity)
         rospy.spin()
 
 
 if __name__ == '__main__':
     haruto_feedback = HarutoFeedback()
-    haruto_feedback.set_encoder_tunings()
     haruto_feedback.start_listening()
