@@ -116,7 +116,7 @@ class HarutoFeedback(object):
         vl = (self.odom_speed['front_left_actual_speed'] + self.odom_speed['back_left_actual_speed']) / 2
         vr = (self.odom_speed['front_right_actual_speed'] + self.odom_speed['back_right_actual_speed']) / 2
         vc = (WHEEL_RADIUS * (vl + vr)) / 2
-        self.position['th'] = self.position['th'] + ((WHEEL_RADIUS * (vr - vl)) / WHEEL_GAP)
+        self.position['th'] = self.position['th'] + (((WHEEL_RADIUS * (vr - vl)) / WHEEL_GAP) * (180/3.14))
         self.position['x'] = self.position['x'] + (vc * math.cos(self.position['th']))
         self.position['y'] = self.position['y'] + (vc * math.sin(self.position['th']))
 
