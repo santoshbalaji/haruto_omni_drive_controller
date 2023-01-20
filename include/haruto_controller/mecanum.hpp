@@ -10,9 +10,10 @@ class MecanumDriver
   private:
     double x_center_distance_;
     double y_center_distance_;
+    double wheel_radius_;
 
   public:
-    MecanumDriver(double x_center_distance, double y_center_distance);
+    MecanumDriver(double x_center_distance, double y_center_distance, double wheel_radius);
     Eigen::MatrixXd compute_forward_kinematics(
       double front_left_vel, double front_right_vel, double back_left_vel, double back_right_vel);
     Eigen::MatrixXd compute_inverse_kinematics(
