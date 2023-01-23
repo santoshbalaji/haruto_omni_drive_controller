@@ -1,2 +1,3 @@
 # haruto_controller
-controller for translating command velocities from navigation stack to PWM signals 
+
+Low level robotic controller for controlling different robot drives using ros2 control
