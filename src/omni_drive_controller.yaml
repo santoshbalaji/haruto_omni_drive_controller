@@ -1,0 +1,16 @@
+omni_drive_controller:
+  left_wheel_names: {
+    type: string_array,
+    default_value: [],
+    description: "Link names of the left side wheels",
+  }
+  right_wheel_names: {
+    type: string_array,
+    default_value: [],
+    description: "Link names of the right side wheels",
+  }
+  wheel_radius: {
+    type: double,
+    default_value: 0.0,
+    description: "Radius of a wheel, i.e., wheels size, used for transformation of linear velocity into wheel rotations. If this parameter is wrong the robot will move faster or slower then expected.",
+  }

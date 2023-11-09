@@ -1,14 +1,20 @@
-#include <haruto_controller/mecanum.hpp>
+#include <omni_drive_controller/kinematics.hpp>
 
-haruto_controller::MecanumDriver::MecanumDriver(double x_center_distance, double y_center_distance, double wheel_radius)
+omni_drive_controller::Kinematics::Kinematics(
+  double x_center_distance,
+  double y_center_distance,
+  double wheel_radius)
 {
   this->x_center_distance_ = x_center_distance;
   this->y_center_distance_ = y_center_distance;
   this->wheel_radius_ = wheel_radius;
 }
 
-Eigen::MatrixXd haruto_controller::MecanumDriver::compute_forward_kinematics(
-  double front_left_vel, double front_right_vel, double back_left_vel, double back_right_vel)
+Eigen::MatrixXd omni_drive_controller::Kinematics::compute_forward_kinematics(
+  double front_left_vel,
+  double front_right_vel,
+  double back_left_vel,
+  double back_right_vel)
 {
   Eigen::MatrixXd first_set(1, 1);
   Eigen::MatrixXd second_set(4, 3);
@@ -28,8 +34,10 @@ Eigen::MatrixXd haruto_controller::MecanumDriver::compute_forward_kinematics(
   return answer_set;
 }
 
-Eigen::MatrixXd haruto_controller::MecanumDriver::compute_inverse_kinematics(
-  double x_linear_vel, double y_linear_vel, double z_angular_vel)
+Eigen::MatrixXd omni_drive_controller::Kinematics::compute_inverse_kinematics(
+  double x_linear_vel,
+  double y_linear_vel,
+  double z_angular_vel)
 {
   Eigen::MatrixXd first_set(1, 1);
   Eigen::MatrixXd second_set(3, 4);
